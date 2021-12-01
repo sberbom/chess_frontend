@@ -1,0 +1,10 @@
+.board {
+    width: 818px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.boardContainer {
+    display: flex;
+    margin: 100px;
+}

@@ -1,0 +1,10 @@
+.piece {
+    height: 70px;
+    width: 70px;
+    padding: 15px;
+}
+
+.piece:hover {
+    cursor: pointer;
+}
+
