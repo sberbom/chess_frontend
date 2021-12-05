@@ -4,11 +4,20 @@ import "../styles/board.css"
 import { useState } from "react"
 import { getAllowedMoves, isCheck, isStaleMate } from "../utlis/chess_utils"
 import PieceSelector from "./piece_selector"
+import Captures from "./captures"
 
 //v2
-//Take piece
-//Information display
 //Reponsive design
+
+//v3
+//Bot v1 random
+
+//v4
+//Bot v2 greedy
+//Score
+
+
+
 
 const Board = () => {
 
@@ -32,6 +41,8 @@ const Board = () => {
     const [pawnToPromote, setPwanToPromote] = useState(-1)
     const [castleInformation, setCastleInformation] = useState(defualtCastleInformation)
     const [previousMove, setPreviousMove] = useState(defualtMove)
+    const [blackCaptures, setBlackCaptures] = useState<string[]>([])
+    const [whiteCaptures, setWhiteCaptures] = useState<string[]>([])
 
     const getSelectedTiles = () => {
         let selectedTiles = []
@@ -125,6 +136,13 @@ const Board = () => {
                         updatedBoard[selectedRow][selectedColumn+1] = "";
                     }
                 }
+                //Add to capture 
+                if(boardState[Math.floor(index/8)][index%8][0] === "b") {
+                    setWhiteCaptures([...whiteCaptures, boardState[Math.floor(index/8)][index%8]])
+                }
+                else if(boardState[Math.floor(index/8)][index%8][0] === "w") {
+                    setBlackCaptures([...blackCaptures, boardState[Math.floor(index/8)][index%8]])
+                }
                 setBoardState(updatedBoard)
                 updateCastleInformation(index)
                 setWhiteMove(!whiteMove)
@@ -170,7 +188,15 @@ const Board = () => {
             <div className="board">
                 {tiles}
             </div>
-            {isPawnPromotion && <PieceSelector white={!whiteMove} getPiece={promotePawn}/>}
+            <div className="info-display">
+                <h1>Chess</h1>
+                <h2>{whiteMove ? "White" : "Black"} to move</h2>
+                <h3>White captures:</h3>
+                <Captures pieces={whiteCaptures} />
+                <h3>Black captures:</h3>
+                <Captures pieces={blackCaptures} />
+                {isPawnPromotion && <PieceSelector white={!whiteMove} getPiece={promotePawn}/>}
+            </div>
         </div>
     ) 
 }  

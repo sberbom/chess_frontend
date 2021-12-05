@@ -32,17 +32,17 @@ const Piece = ({piece, onClick}: IProps) => {
         case "bK":
             return <img src={bKing} className={"piece"} alt="bKing" onClick={onClick}/>
         case "wP":
-            return <img src={wpawn} className={"piece"} alt="wPawn" onClick={onClick}/>
+            return <img src={wpawn} className={"piece  whitePiece"} alt="wPawn" onClick={onClick}/>
         case "wB":
-            return <img src={wBishop} className={"piece"} alt="wBishop" onClick={onClick}/>
+            return <img src={wBishop} className={"piece  whitePiece"} alt="wBishop" onClick={onClick}/>
         case "wKn":
-            return <img src={wKnight} className={"piece"} alt="wKnight" onClick={onClick}/>
+            return <img src={wKnight} className={"piece  whitePiece"} alt="wKnight" onClick={onClick}/>
         case "wQ":
-            return <img src={wQeen} className={"piece"} alt="wQueen" onClick={onClick}/>
+            return <img src={wQeen} className={"piece  whitePiece"} alt="wQueen" onClick={onClick}/>
         case "wR":
-            return <img src={wRook} className={"piece"} alt="wRook" onClick={onClick}/>
+            return <img src={wRook} className={"piece  whitePiece"} alt="wRook" onClick={onClick}/>
         case "wK":
-            return <img src={wKing} className={"piece"} alt="wKing" onClick={onClick}/>
+            return <img src={wKing} className={"piece  whitePiece"} alt="wKing" onClick={onClick}/>
         default:
             return null;
     }

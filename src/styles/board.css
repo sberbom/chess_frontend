@@ -8,3 +8,21 @@
     display: flex;
     margin: 100px;
 }
+
+.info-display {
+    padding-left: 75px;
+    text-align: left;
+}
+
+.info-display > h1{
+    font-size: 3rem;
+    margin-top: 0;
+}
+
+.info-display > h2 {
+    font-size: 2rem;
+}
+
+.info-display > h3 {
+    font-size: 1.25rem;
+}
