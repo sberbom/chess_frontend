@@ -1,7 +1,10 @@
 .piece {
-    height: 70px;
-    width: 70px;
-    padding: 15px;
+    height: 70%;
+    width: 70%;
+}
+
+.tile > * > .piece {
+    padding: 15%;
 }
 
 .piece:hover {

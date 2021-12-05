@@ -1,7 +1,7 @@
 .board {
     width: 818px;
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 100px 100px 100px 100px 100px 100px 100px 100px;
 }
 
 .boardContainer {
@@ -10,7 +10,7 @@
 }
 
 .info-display {
-    padding-left: 75px;
+    margin-left: 75px;
     text-align: left;
 }
 
@@ -26,3 +26,57 @@
 .info-display > h3 {
     font-size: 1.25rem;
 }
+
+.warning-text{
+    color: red;
+}
+
+@media only screen and (max-width: 1250px) {
+    .boardContainer {
+        flex-direction: column-reverse;
+    }
+
+    .info-display {
+        margin-left: 0px;
+        margin-bottom: 50px;
+    }
+}
+
+@media only screen and (max-width: 900px) {
+    .board {
+        width: auto;
+        display: grid;
+        grid-template-columns: auto auto auto auto auto auto auto auto;
+    }
+
+    .info-display {
+        margin-left: 0px;
+        margin-bottom: 2vh;
+    }
+
+    .info-display > h3 {
+        margin: 1vh;
+    }
+
+    .info-display > h2 {
+        margin: 0;
+        margin-bottom: 2vh;
+    }
+
+    .info-display > h1 {
+        margin-bottom: 2vh;
+    }
+
+    .warning-text{
+        margin-left: 1vh;
+    }
+
+}
+
+@media only screen and (max-width: 800px) {
+    .boardContainer {
+        margin: 3vw;
+    }
+
+}
+

@@ -6,8 +6,6 @@ import { getAllowedMoves, isCheck, isStaleMate } from "../utlis/chess_utils"
 import PieceSelector from "./piece_selector"
 import Captures from "./captures"
 
-//v2
-//Reponsive design
 
 //v3
 //Bot v1 random
@@ -43,6 +41,7 @@ const Board = () => {
     const [previousMove, setPreviousMove] = useState(defualtMove)
     const [blackCaptures, setBlackCaptures] = useState<string[]>([])
     const [whiteCaptures, setWhiteCaptures] = useState<string[]>([])
+    const [infoText, setInfoText] = useState("")
 
     const getSelectedTiles = () => {
         let selectedTiles = []
@@ -89,12 +88,15 @@ const Board = () => {
             updatedBoard[selectedRow][selectedColumn]=""
             if(isCheck(whiteMove, boardState, castleInformation, previousMove) && isCheck(whiteMove, updatedBoard, castleInformation, previousMove)) {
                 console.log("Move not allowed, check");
+                setInfoText("Move not allowed, check")
                 if(isStaleMate(whiteMove, updatedBoard, castleInformation, previousMove)) {
                     console.log("CheckMate")
+                    setInfoText("CheckMate")
                 }
             } 
             else if(isStaleMate(whiteMove, updatedBoard, castleInformation, previousMove)) {
                 console.log("StaleMate")
+                setInfoText("StaleMate")
             }
             else{
                 //Pawn promotion
@@ -147,6 +149,7 @@ const Board = () => {
                 updateCastleInformation(index)
                 setWhiteMove(!whiteMove)
                 setPreviousMove({piece: boardState[selectedRow][selectedColumn], from: selectedRow*8+selectedColumn, to: index})
+                setInfoText("")
             }
             setSelectedRow(-1)
             setSelectedColumn(-1)
@@ -196,6 +199,7 @@ const Board = () => {
                 <h3>Black captures:</h3>
                 <Captures pieces={blackCaptures} />
                 {isPawnPromotion && <PieceSelector white={!whiteMove} getPiece={promotePawn}/>}
+                {infoText !== "" && <p className="warning-text">{infoText}</p>}
             </div>
         </div>
     ) 
