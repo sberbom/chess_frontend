@@ -137,6 +137,12 @@ const Board = () => {
                     else if(selectedColumn === (index%8)-1) {
                         updatedBoard[selectedRow][selectedColumn+1] = "";
                     }
+                    if(boardState[selectedRow][selectedColumn][0] === "w") {
+                        setWhiteCaptures([...whiteCaptures, "bP"])
+                    }
+                    else if(boardState[selectedRow][selectedColumn][0] === "b") {
+                        setBlackCaptures([...blackCaptures, "wP"])
+                    }
                 }
                 //Add to capture 
                 if(boardState[Math.floor(index/8)][index%8][0] === "b") {
@@ -151,6 +157,10 @@ const Board = () => {
                 setPreviousMove({piece: boardState[selectedRow][selectedColumn], from: selectedRow*8+selectedColumn, to: index})
                 setInfoText("")
             }
+            setSelectedRow(-1)
+            setSelectedColumn(-1)
+        }
+        else {
             setSelectedRow(-1)
             setSelectedColumn(-1)
         }
