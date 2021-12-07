@@ -17,7 +17,7 @@ export const getAllowedMoves = (row: number, column: number, boardState: string[
             if(row+1 < 8 && column-1 >= 0 && boardState[row+1][column-1][0] === "b") {
                 allowedMoves.push([row+1, column-1]);
             }
-            if(previousMove.piece === "bP" && Math.floor(previousMove.from/8) === 6 && Math.floor(previousMove.to/8) === 4) {
+            if(previousMove.piece === "bP" && Math.floor(previousMove.from/8) === 6 && Math.floor(previousMove.to/8) === 4 && Math.floor(previousMove.to/8) === row) {
                 if(column+1 === Number(previousMove.to)%8) {
                     allowedMoves.push([row+1, column+1]);
                 }
