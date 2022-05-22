@@ -33,3 +33,9 @@ export const defualtMove: Move = {
     from: -1,
     to: -1,
 }
+
+export interface piecePossibleToMove {
+    rowNumber: number,
+    columnNumber: number,
+    moves: number[][]
+}
