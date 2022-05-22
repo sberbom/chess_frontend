@@ -7,8 +7,8 @@ interface IProps {
 
 const Captures = ({pieces}: IProps) => {
     let piecesToRender = pieces.sort().map((piece, index) => 
-        <div className="captured-piece-container">
-            <Piece piece={piece} key={index}/>
+        <div className="captured-piece-container" key={index}>
+            <Piece piece={piece}/>
         </div>
     )
 

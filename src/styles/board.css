@@ -31,6 +31,10 @@
     color: red;
 }
 
+button {
+    margin-right: 10px;
+}
+
 @media only screen and (max-width: 1250px) {
     .boardContainer {
         flex-direction: column-reverse;
