@@ -16,7 +16,7 @@ const Tile = ({color, piece, selected, movePiece}: IProps ): JSX.Element => {
     var selectedClass = classNames({"selected": selected})
 
     return(
-        <div className={tileClass} onClick={movePiece}>
+        <div className={tileClass} onClick={movePiece} data-testid="tile">
             <div className={selectedClass}>
                 {piece && <Piece piece={piece}/>}
             </div>

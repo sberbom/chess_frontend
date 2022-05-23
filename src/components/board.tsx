@@ -45,6 +45,7 @@ const Board = () => {
     const [whiteCaptures, setWhiteCaptures] = useState<string[]>([])
     const [infoText, setInfoText] = useState("")
     const [isTwoPlayer, setIsTwoPlayer] = useState(false)
+    const [isEndGame, setIsEndGame] = useState(false)
 
     const getSelectedTiles = () => {
         let selectedTiles = []
@@ -75,124 +76,122 @@ const Board = () => {
 
     const movePiece = (index: number, isComputerMove?: Boolean, selectedRowNumber?: number, selectedColumnNumber?: number) => {
         try{
-            let rowNumber = selectedRow;
-            let columnNumber = selectedColumn;
-            if(typeof selectedRowNumber !== "undefined" && typeof selectedColumnNumber !== "undefined") {
-                rowNumber = selectedRowNumber;
-                columnNumber = selectedColumnNumber;
-            }
+            if(!isEndGame){
+                let rowNumber = selectedRow;
+                let columnNumber = selectedColumn;
+                if(typeof selectedRowNumber !== "undefined" && typeof selectedColumnNumber !== "undefined") {
+                    rowNumber = selectedRowNumber;
+                    columnNumber = selectedColumnNumber;
+                }
 
-            if((rowNumber === -1 || columnNumber === -1) && boardState[Math.floor(index/8)][index%8] !== "" && 
-                ((whiteMove && boardState[Math.floor(index/8)][index%8][0] === "w") || (!whiteMove && boardState[Math.floor(index/8)][index%8][0] === "b")) &&
-                !isPawnPromotion) {
-                setSelectedRow(Math.floor(index/8))
-                setSelectedColumn(index%8)
-                getAllowedMoves(rowNumber, columnNumber, boardState, castleInformation, false, previousMove)
-            }
-            else if((rowNumber !== -1 && columnNumber !== -1 && getAllowedMoves(rowNumber, columnNumber, boardState, castleInformation, false, previousMove).some( r => r[0] === Math.floor(index/8) && r[1] === index%8) && 
-                !isPawnPromotion) || (isComputerMove && !isPawnPromotion)) {
-                let updatedBoard = JSON.parse(JSON.stringify(boardState));
-                updatedBoard[Math.floor(index/8)][index%8] = boardState[rowNumber][columnNumber]
-                updatedBoard[rowNumber][columnNumber]=""
-                if(isCheck(!whiteMove, updatedBoard, castleInformation, previousMove)) {
-                    if(isTwoPlayer || whiteMove) {
-                        console.info("Move not allowed, check");
-                        setInfoText("Move not allowed, check")
-                    }
-                    else{
-                        //Avoid check computer
-                        avoidCheckComputerMove()
-                    }
+                if((rowNumber === -1 || columnNumber === -1) && boardState[Math.floor(index/8)][index%8] !== "" && 
+                    ((whiteMove && boardState[Math.floor(index/8)][index%8][0] === "w") || (!whiteMove && boardState[Math.floor(index/8)][index%8][0] === "b")) &&
+                    !isPawnPromotion) {
+                    setSelectedRow(Math.floor(index/8))
+                    setSelectedColumn(index%8)
+                    getAllowedMoves(rowNumber, columnNumber, boardState, castleInformation, false, previousMove)
                 }
-                if(isCheck(whiteMove, boardState, castleInformation, previousMove) && isCheck(whiteMove, updatedBoard, castleInformation, previousMove)) {
-                    if(isStaleMate(whiteMove, updatedBoard, castleInformation, previousMove)) {
-                        console.info("CheckMate")
-                        setInfoText("CheckMate")
-                        // setIsCheckMate(true)
-                    }
-                    if(isTwoPlayer || whiteMove) {
-                        console.info("Move not allowed, check");
-                        setInfoText("Move not allowed, check")
-                    }
-                    else{
-                        //Avoid check computer
-                        avoidCheckComputerMove()
-                    }
-                } 
-                else if(isStaleMate(whiteMove, updatedBoard, castleInformation, previousMove)) {
-                    console.info("StaleMate")
-                    setInfoText("StaleMate")
-                }
-                else{
-                    //Pawn promotion
-                    if(updatedBoard[Math.floor(index/8)][index%8] === "wP" && Math.floor(index/8) === 7) {
-                        setIsPawnPromotion(true);
-                        setPwanToPromote(index)
-                    }
-                    else if(updatedBoard[Math.floor(index/8)][index%8] === "bP" && Math.floor(index/8) === 0) {
-                        if(isTwoPlayer){
-                            setIsPawnPromotion(true)
-                            setPwanToPromote(index)
+                else if((rowNumber !== -1 && columnNumber !== -1 && getAllowedMoves(rowNumber, columnNumber, boardState, castleInformation, false, previousMove).some( r => r[0] === Math.floor(index/8) && r[1] === index%8) && 
+                    !isPawnPromotion) || (isComputerMove && !isPawnPromotion)) {
+                    let updatedBoard = JSON.parse(JSON.stringify(boardState));
+                    updatedBoard[Math.floor(index/8)][index%8] = boardState[rowNumber][columnNumber]
+                    updatedBoard[rowNumber][columnNumber]=""
+                    if(isCheck(!whiteMove, updatedBoard, castleInformation, previousMove)) {
+                        if(isTwoPlayer || whiteMove) {
+                            console.info("Move not allowed, check");
+                            setInfoText("Move not allowed, check")
                         }
                         else{
-                            updatedBoard[Math.floor(index/8)][index%8] = "bQ"
+                            //Avoid check computer
+                            avoidCheckComputerMove()
                         }
                     }
-                    //Castle
-                    if(boardState[rowNumber][columnNumber] === "wK"){
-                        if(index === 1) {
-                            updatedBoard[0][0] = ""
-                            updatedBoard[0][2] = "wR"
+                    if(isCheck(whiteMove, boardState, castleInformation, previousMove) && isCheck(whiteMove, updatedBoard, castleInformation, previousMove)) {
+                        if(isStaleMate(whiteMove, updatedBoard, castleInformation, previousMove)) {
+                            console.info("CheckMate")
+                            setInfoText("CheckMate")
+                            // setIsCheckMate(true)
                         }
-                        if(index === 6) {
-                            updatedBoard[0][7] = ""
-                            updatedBoard[0][5] = "wR"
+                        if(isTwoPlayer || whiteMove) {
+                            console.info("Move not allowed, check");
+                            setInfoText("Move not allowed, check")
                         }
+                        else{
+                            //Avoid check computer
+                            avoidCheckComputerMove()
+                        }
+                    } 
+                    else{
+                        //Pawn promotion
+                        if(updatedBoard[Math.floor(index/8)][index%8] === "wP" && Math.floor(index/8) === 7) {
+                            setIsPawnPromotion(true);
+                            setPwanToPromote(index)
+                        }
+                        else if(updatedBoard[Math.floor(index/8)][index%8] === "bP" && Math.floor(index/8) === 0) {
+                            if(isTwoPlayer){
+                                setIsPawnPromotion(true)
+                                setPwanToPromote(index)
+                            }
+                            else{
+                                updatedBoard[Math.floor(index/8)][index%8] = "bQ"
+                            }
+                        }
+                        //Castle
+                        if(boardState[rowNumber][columnNumber] === "wK"){
+                            if(index === 1) {
+                                updatedBoard[0][0] = ""
+                                updatedBoard[0][2] = "wR"
+                            }
+                            if(index === 6) {
+                                updatedBoard[0][7] = ""
+                                updatedBoard[0][5] = "wR"
+                            }
+                        }
+                        if(boardState[rowNumber][columnNumber] === "bK"){
+                            if(index === 57) {
+                                updatedBoard[7][0] = ""
+                                updatedBoard[7][2] = "bR"
+                            }
+                            if(index === 62) {
+                                updatedBoard[7][7] = ""
+                                updatedBoard[7][5] = "bR"
+                            }
+                        }
+                        //En passant
+                        if(boardState[rowNumber][columnNumber][1] === "P" && columnNumber !== index%8) {
+                            if(columnNumber === (index%8)+1) {
+                                updatedBoard[rowNumber][columnNumber-1] = "";
+                            }
+                            else if(columnNumber === (index%8)-1) {
+                                updatedBoard[rowNumber][columnNumber+1] = "";
+                            }
+                            if(boardState[rowNumber][columnNumber][0] === "w") {
+                                setWhiteCaptures([...whiteCaptures, "bP"])
+                            }
+                            else if(boardState[rowNumber][columnNumber][0] === "b") {
+                                setBlackCaptures([...blackCaptures, "wP"])
+                            }
+                        }
+                        //Add to capture 
+                        if(boardState[Math.floor(index/8)][index%8][0] === "b") {
+                            setWhiteCaptures([...whiteCaptures, boardState[Math.floor(index/8)][index%8]])
+                        }
+                        else if(boardState[Math.floor(index/8)][index%8][0] === "w") {
+                            setBlackCaptures([...blackCaptures, boardState[Math.floor(index/8)][index%8]])
+                        }
+                        setBoardState(updatedBoard)
+                        updateCastleInformation(index)
+                        setWhiteMove(!whiteMove)
+                        setPreviousMove({piece: boardState[rowNumber][columnNumber], from: rowNumber*8+columnNumber, to: index})
+                        setInfoText("")
                     }
-                    if(boardState[rowNumber][columnNumber] === "bK"){
-                        if(index === 57) {
-                            updatedBoard[7][0] = ""
-                            updatedBoard[7][2] = "bR"
-                        }
-                        if(index === 62) {
-                            updatedBoard[7][7] = ""
-                            updatedBoard[7][5] = "bR"
-                        }
-                    }
-                    //En passant
-                    if(boardState[rowNumber][columnNumber][1] === "P" && columnNumber !== index%8) {
-                        if(columnNumber === (index%8)+1) {
-                            updatedBoard[rowNumber][columnNumber-1] = "";
-                        }
-                        else if(columnNumber === (index%8)-1) {
-                            updatedBoard[rowNumber][columnNumber+1] = "";
-                        }
-                        if(boardState[rowNumber][columnNumber][0] === "w") {
-                            setWhiteCaptures([...whiteCaptures, "bP"])
-                        }
-                        else if(boardState[rowNumber][columnNumber][0] === "b") {
-                            setBlackCaptures([...blackCaptures, "wP"])
-                        }
-                    }
-                    //Add to capture 
-                    if(boardState[Math.floor(index/8)][index%8][0] === "b") {
-                        setWhiteCaptures([...whiteCaptures, boardState[Math.floor(index/8)][index%8]])
-                    }
-                    else if(boardState[Math.floor(index/8)][index%8][0] === "w") {
-                        setBlackCaptures([...blackCaptures, boardState[Math.floor(index/8)][index%8]])
-                    }
-                    setBoardState(updatedBoard)
-                    updateCastleInformation(index)
-                    setWhiteMove(!whiteMove)
-                    setPreviousMove({piece: boardState[rowNumber][columnNumber], from: rowNumber*8+columnNumber, to: index})
-                    setInfoText("")
+                    setSelectedRow(-1)
+                    setSelectedColumn(-1)
                 }
-                setSelectedRow(-1)
-                setSelectedColumn(-1)
-            }
-            else {
-                setSelectedRow(-1)
-                setSelectedColumn(-1)
+                else {
+                    setSelectedRow(-1)
+                    setSelectedColumn(-1)
+                }
             }
         }
         catch(error) {
@@ -233,13 +232,7 @@ const Board = () => {
         setPwanToPromote(-1)
     }
 
-    useEffect(() => { 
-        if(!whiteMove && !isPawnPromotion && !isTwoPlayer) {
-            doRandomComputerMove()
-        }
-    }, [whiteMove, isPawnPromotion])
-
-
+    
     const getPossilbeComputerMoves = (): piecePossibleToMove[] => {
         let piecesPossilbeToMove: piecePossibleToMove[] = []
             for(let rowNumber = 0; rowNumber < 8; rowNumber++) {
@@ -291,6 +284,22 @@ const Board = () => {
         }
         
     }
+
+    useEffect(() => { 
+            if(isCheckMate(whiteMove, boardState, castleInformation, previousMove)){
+                setInfoText(`Check mate ${whiteMove ? "black" : "white"} player won!`)
+                setIsEndGame(true)
+                console.info("Check mate player won!")
+            }
+            else if(isStaleMate(!whiteMove, boardState, castleInformation, previousMove)){
+                setInfoText(`Stalemate, remis`)
+                setIsEndGame(true)
+                console.info("Stalemate, remis")
+            }
+            if(!whiteMove && !isPawnPromotion && !isTwoPlayer) {
+                doRandomComputerMove()
+            }
+        }, [whiteMove, boardState, castleInformation, previousMove, isPawnPromotion, isTwoPlayer])
 
     return(
         <div className="boardContainer">
