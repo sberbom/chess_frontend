@@ -316,40 +316,36 @@ export const isCheck = (whiteMove: boolean, boardState: string[][], castleInform
     return false
 }
 
-export const isCheckMate = (whiteMove: boolean, boardState: string[][], castleInformation: CastleInformation, previousMove: Move): boolean => {
-    for(let rowNumber=0; rowNumber<8; rowNumber++) {
-        for(let columnNumber=0; columnNumber<8; columnNumber++){
-            const allowedMoves =  getAllowedMoves(rowNumber, columnNumber, boardState, castleInformation, true, previousMove)
-            for(const move in allowedMoves) {
-                console.log(allowedMoves);
-                console.log(move)
-                const updatedBoard = JSON.parse(JSON.stringify(boardState));
-                updatedBoard[rowNumber][columnNumber] = ""
-                updatedBoard[move[0]][move[1]] = boardState[rowNumber][columnNumber]
-                if(!isCheck(!whiteMove, updatedBoard, castleInformation, previousMove)) {
-                    console.log(move)
-                    return false;
-                }
-            }
-        }
-    }
-    return true
-}
-
 export const isStaleMate = (whiteMove: boolean, boardState: string[][], castleInformation: CastleInformation, previousMove: Move): boolean => {
     for(let rowNumber=0; rowNumber<8; rowNumber++) {
         for(let columnNumber=0; columnNumber<8; columnNumber++){
             if(whiteMove && boardState[rowNumber][columnNumber][0] === "b"){
-                if(getAllowedMoves(rowNumber, columnNumber, boardState, castleInformation, true, previousMove).length !== 0) {
-                    return false
+                const allowedMoves =  getAllowedMoves(rowNumber, columnNumber, boardState, castleInformation, true, previousMove)
+                for(const move of allowedMoves) {
+                    const updatedBoard = JSON.parse(JSON.stringify(boardState));
+                    updatedBoard[rowNumber][columnNumber] = ""
+                    updatedBoard[move[0]][move[1]] = boardState[rowNumber][columnNumber]
+                    if(!isCheck(!whiteMove, updatedBoard, castleInformation, previousMove)) {
+                        return false;
+                    }
                 }
             }
             else if(!whiteMove && boardState[rowNumber][columnNumber][0] === "w"){
-                if(getAllowedMoves(rowNumber, columnNumber, boardState, castleInformation, true, previousMove).length !== 0) {
-                    return false
+                const allowedMoves =  getAllowedMoves(rowNumber, columnNumber, boardState, castleInformation, true, previousMove)
+                for(const move of allowedMoves) {
+                    const updatedBoard = JSON.parse(JSON.stringify(boardState));
+                    updatedBoard[rowNumber][columnNumber] = ""
+                    updatedBoard[move[0]][move[1]] = boardState[rowNumber][columnNumber]
+                    if(!isCheck(!whiteMove, updatedBoard, castleInformation, previousMove)) {
+                        return false;
+                    }
                 }
             }
         }
     }
     return true;
+}
+
+export const isCheckMate = (whiteMove: boolean, boardState: string[][], castleInformation: CastleInformation, previousMove: Move): boolean => {
+    return isCheck(whiteMove,boardState, castleInformation, previousMove) && isStaleMate(!whiteMove, boardState, castleInformation, previousMove)
 }
