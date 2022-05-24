@@ -13,6 +13,10 @@
     background-color: green;
 }
 
+.red-tile {
+    background-color: red;
+}
+
 .selected {
     height: 100%;
     width: 100%;

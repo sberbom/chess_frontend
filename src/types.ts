@@ -1,6 +1,7 @@
 export enum Colors {
     white = "white",
-    black = "black"
+    black = "black",
+    red = "red"
 }
 
 export interface CastleInformation {
@@ -21,21 +22,20 @@ export const defualtCastleInformation: CastleInformation = {
     bK: true
 }
 
+export interface Tile {
+    row: number,
+    column: number
+}
 
 export interface Move {
-    piece: string,
-    from: number,
-    to: number
+    piece: String,
+    fromTile: Tile
+    toTile: Tile
+    value?: number
 }
 
-export const defualtMove: Move = {
+export const noPreviousMove: Move = {
     piece: "",
-    from: -1,
-    to: -1,
-}
-
-export interface piecePossibleToMove {
-    rowNumber: number,
-    columnNumber: number,
-    moves: number[][]
+    fromTile: {row: -1, column: -1},
+    toTile: {row: -1, column: -1}
 }

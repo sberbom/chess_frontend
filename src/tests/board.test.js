@@ -12,10 +12,10 @@ test("Game modes", () => {
     render(<Board />)
     
     fireEvent.click(screen.getByText("TwoPlayer"))
-    expect(screen.getByText("Game Mode: Two player")).toHaveTextContent("Game Mode: Two player")
+    expect(screen.getByText("Game Mode: Two Player")).toHaveTextContent("Game Mode: Two Player")
 
-    fireEvent.click(screen.getByText("Machine"))
-    expect(screen.getByText("Game Mode: Machine")).toHaveTextContent("Game Mode: Machine")
+    fireEvent.click(screen.getByText("Machine Random"))
+    expect(screen.getByText("Game Mode: Machine Random")).toHaveTextContent("Game Mode: Machine Random")
 })
 
 test("Checkmate", () => {
