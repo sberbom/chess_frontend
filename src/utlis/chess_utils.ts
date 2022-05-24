@@ -1,28 +1,28 @@
-import { CastleInformation, Move } from "../types";
+import { CastleInformation, Move, Tile } from "../types";
 
-export const getAllowedMoves = (row: number, column: number, boardState: string[][], castleInformation: CastleInformation, isCheckCheck: boolean, previousMove: Move): number[][] => {
-    const allowedMoves = []
+export const getAllowedMoves = (row: number, column: number, boardState: string[][], castleInformation: CastleInformation, isCheckCheck: boolean, previousMove: Move): Tile[] => {
+    const allowedMoves: Tile[] = []
     if(row !== -1 && column !== -1) {
         //White pawn
         if(boardState[row][column] === "wP") {
             if(row+1 < 8 && boardState[row+1][column] === ""){
-                allowedMoves.push([row+1, column]);
+                allowedMoves.push({row: row+1, column: column});
             }
             if(row === 1 && boardState[row+1][column] === "" && boardState[row+2][column] === ""){
-                allowedMoves.push([row+2, column])
+                allowedMoves.push({row: row+2, column: column})
             }
             if(row+1 < 8 && column+1 < 8 && boardState[row+1][column+1][0] === "b") {
-                allowedMoves.push([row+1, column+1]);
+                allowedMoves.push({row: row+1, column: column+1});
             }
             if(row+1 < 8 && column-1 >= 0 && boardState[row+1][column-1][0] === "b") {
-                allowedMoves.push([row+1, column-1]);
+                allowedMoves.push({row: row+1, column: column-1});
             }
-            if(previousMove.piece === "bP" && Math.floor(previousMove.from/8) === 6 && Math.floor(previousMove.to/8) === 4 && Math.floor(previousMove.to/8) === row) {
-                if(column+1 === Number(previousMove.to)%8) {
-                    allowedMoves.push([row+1, column+1]);
+            if(previousMove.piece === "bP" && previousMove.fromTile.row === 7 && previousMove.toTile.row === 5) {
+                if(column+1 === previousMove.toTile.column) {
+                    allowedMoves.push({row: row+1, column: column+1});
                 }
-                if(column-1 === Number(previousMove.to)%8) {
-                    allowedMoves.push([row+1, column-1]);
+                if(column-1 === previousMove.toTile.column) {
+                    allowedMoves.push({row: row+1, column: column-1});
                 }
             }
         }
@@ -30,23 +30,23 @@ export const getAllowedMoves = (row: number, column: number, boardState: string[
         //Black pawn
         if(boardState[row][column] === "bP") {
             if(row-1 >= 0 && boardState[row-1][column] === ""){
-                allowedMoves.push([row-1, column])
+                allowedMoves.push({row: row-1, column: column})
             }
             if(row === 6 && boardState[row-1][column] === "" && boardState[row-2][column] === ""){
-                allowedMoves.push([row-2, column])
+                allowedMoves.push({row: row-2, column: column})
             }
             if(row-1 >= 0 && column+1 < 8 && boardState[row-1][column+1][0] === "w") {
-                allowedMoves.push([row-1, column+1]);
+                allowedMoves.push({row: row-1, column: column+1});
             }
             if(row-1 >= 0 && column-1 >= 0 && boardState[row-1][column-1][0] === "w") {
-                allowedMoves.push([row-1, column-1]);
+                allowedMoves.push({row: row-1, column: column-1});
             }
-            if(previousMove.piece === "wP" && Math.floor(previousMove.from/8) === 1 && Math.floor(previousMove.to/8) === 3 && Math.floor(previousMove.to/8) === row) {
-                if(column+1 === Number(previousMove.to)%8) {
-                    allowedMoves.push([row-1, column+1]);
+            if(previousMove.piece === "wP" && previousMove.fromTile.row === 2 && previousMove.toTile.row === 4) {
+                if(column+1 === previousMove.toTile.column) {
+                    allowedMoves.push({row: row-1, column: column+1});
                 }
-                if(column-1 === Number(previousMove.to)%8) {
-                    allowedMoves.push([row-1, column-1]);
+                if(column-1 === previousMove.toTile.column) {
+                    allowedMoves.push({row: row-1, column: column-1});
                 }
             }
         }
@@ -55,28 +55,28 @@ export const getAllowedMoves = (row: number, column: number, boardState: string[
         //console.log("Knight")
         if(boardState[row][column] === "wKn" || boardState[row][column] === "bKn") {
             if (row+2 < 8 && column+1 < 8 && boardState[row+2][column+1][0] !== boardState[row][column][0]) {
-                allowedMoves.push([row+2, column+1])
+                allowedMoves.push({row: row+2, column: column+1})
             }
             if (row+2 < 8 && column-1 >= 0 && boardState[row+2][column-1][0] !== boardState[row][column][0]) {
-                allowedMoves.push([row+2, column-1])
+                allowedMoves.push({row: row+2, column: column-1})
             }
             if (row+1 < 8 && column+2 < 8 && boardState[row+1][column+2][0] !== boardState[row][column][0]) {
-                allowedMoves.push([row+1, column+2])
+                allowedMoves.push({row: row+1, column: column+2})
             }
             if (row+1 < 8 && column-2 >= 0 && boardState[row+1][column-2][0] !== boardState[row][column][0]) {
-                allowedMoves.push([row+1, column-2])
+                allowedMoves.push({row: row+1, column: column-2})
             }
             if (row-2 >= 0 && column-1 >= 0 && boardState[row-2][column-1][0] !== boardState[row][column][0]) {
-                allowedMoves.push([row-2, column-1])
+                allowedMoves.push({row: row-2, column: column-1})
             }
             if (row-2 >= 0 && column+1 < 8 && boardState[row-2][column+1][0] !== boardState[row][column][0]) {
-                allowedMoves.push([row-2, column+1])
+                allowedMoves.push({row: row-2, column: column+1})
             }
             if (row-1 > 0 && column-2 >= 0 && boardState[row-1][column-2][0] !== boardState[row][column][0]) {
-                allowedMoves.push([row-1, column-2])
+                allowedMoves.push({row: row-1, column: column-2})
             }
             if (row-1 >= 0 && column+2 < 8 && boardState[row-1][column+2][0] !== boardState[row][column][0]) {
-                allowedMoves.push([row-1, column+2])
+                allowedMoves.push({row: row-1, column: column+2})
             }
         }
 
@@ -86,7 +86,7 @@ export const getAllowedMoves = (row: number, column: number, boardState: string[
             let counter = 1
             while(row+counter < 8 && column+counter < 8){
                 if(boardState[row+counter][column+counter][0] !== boardState[row][column][0]){
-                    allowedMoves.push([row+counter, column+counter])
+                    allowedMoves.push({row: row+counter, column: column+counter})
                     if(boardState[row+counter][column+counter][0] === "w" || 
                         boardState[row+counter][column+counter][0] === "b"){
                         break;
@@ -100,7 +100,7 @@ export const getAllowedMoves = (row: number, column: number, boardState: string[
             counter = 1
             while(row-counter >= 0 && column-counter >= 0){
                 if(boardState[row-counter][column-counter][0] !== boardState[row][column][0]){
-                    allowedMoves.push([row-counter, column-counter])
+                    allowedMoves.push({row: row-counter, column: column-counter})
                     if(boardState[row-counter][column-counter][0] === "w" || 
                         boardState[row-counter][column-counter][0] === "b"){
                         break;
@@ -114,7 +114,7 @@ export const getAllowedMoves = (row: number, column: number, boardState: string[
             counter = 1
             while(row+counter < 8 && column-counter >= 0){
                 if(boardState[row+counter][column-counter][0] !== boardState[row][column][0]){
-                    allowedMoves.push([row+counter, column-counter])
+                    allowedMoves.push({row: row+counter, column: column-counter})
                     if(boardState[row+counter][column-counter][0] === "w" || 
                         boardState[row+counter][column-counter][0] === "b"){
                         break;
@@ -129,7 +129,7 @@ export const getAllowedMoves = (row: number, column: number, boardState: string[
             counter = 1
             while(row-counter >= 0 && column+counter <8){
                 if(boardState[row-counter][column+counter][0] !== boardState[row][column][0]){
-                    allowedMoves.push([row-counter, column+counter])
+                    allowedMoves.push({row: row-counter, column: column+counter})
                     if(boardState[row-counter][column+counter][0] === "w" || 
                         boardState[row-counter][column+counter][0] === "b" ){
                         break;
@@ -148,7 +148,7 @@ export const getAllowedMoves = (row: number, column: number, boardState: string[
             let counter = 1
             while(row+counter < 8){
                 if(boardState[row+counter][column][0] !== boardState[row][column][0]){
-                    allowedMoves.push([row+counter, column])
+                    allowedMoves.push({row: row+counter, column: column})
                     if(boardState[row+counter][column][0] === "w" || 
                         boardState[row+counter][column][0] === "b"){
                         break;
@@ -162,7 +162,7 @@ export const getAllowedMoves = (row: number, column: number, boardState: string[
             counter = 1
             while(column+counter < 8){
                 if(boardState[row][column+counter][0] !== boardState[row][column][0]){
-                    allowedMoves.push([row, column+counter])
+                    allowedMoves.push({row: row, column: column+counter})
                     if(boardState[row][column+counter][0] === "w" || 
                         boardState[row][column+counter][0] === "b"){
                         break;
@@ -176,7 +176,7 @@ export const getAllowedMoves = (row: number, column: number, boardState: string[
             counter = 1
             while(row-counter >= 0){
                 if(boardState[row-counter][column][0] !== boardState[row][column][0]){
-                    allowedMoves.push([row-counter, column])
+                    allowedMoves.push({row: row-counter, column: column})
                     if(boardState[row-counter][column][0] === "w" || 
                         boardState[row-counter][column][0] === "b"){
                         break;
@@ -190,7 +190,7 @@ export const getAllowedMoves = (row: number, column: number, boardState: string[
             counter = 1
             while(column-counter >= 0){
                 if(boardState[row][column-counter][0] !== boardState[row][column][0]){
-                    allowedMoves.push([row, column-counter])
+                    allowedMoves.push({row: row, column: column-counter})
                     if(boardState[row][column-counter][0] === "w" || 
                         boardState[row][column-counter][0] === "b"){
                         break;
@@ -207,28 +207,28 @@ export const getAllowedMoves = (row: number, column: number, boardState: string[
         //console.log("King")
         if(boardState[row][column] === "wK" || boardState[row][column] === "bK") {
             if (row+1 < 8 && column+1 < 8 && boardState[row+1][column+1][0] !== boardState[row][column][0]) {
-                allowedMoves.push([row+1, column+1])
+                allowedMoves.push({row: row+1, column: column+1})
             }
             if (row-1 >= 0 && column-1 >= 0 && boardState[row-1][column-1][0] !== boardState[row][column][0]) {
-                allowedMoves.push([row-1, column-1])
+                allowedMoves.push({row: row-1, column: column-1})
             }
             if (row+1 < 8 && column-1 >= 0 && boardState[row+1][column-1][0] !== boardState[row][column][0]) {
-                allowedMoves.push([row+1, column-1])
+                allowedMoves.push({row: row+1, column: column-1})
             }
             if (row-1 >= 0 && column+1 < 8 && boardState[row-1][column+1][0] !== boardState[row][column][0]) {
-                allowedMoves.push([row-1, column+1])
+                allowedMoves.push({row: row-1, column: column+1})
             }
             if (row+1 < 8 && boardState[row+1][column][0] !== boardState[row][column][0]) {
-                allowedMoves.push([row+1, column])
+                allowedMoves.push({row: row+1, column: column})
             }
             if (row-1 >= 0 && boardState[row-1][column][0] !== boardState[row][column][0]) {
-                allowedMoves.push([row-1, column])
+                allowedMoves.push({row: row-1, column: column})
             }
             if (column-1 >= 0 && boardState[row][column-1][0] !== boardState[row][column][0]) {
-                allowedMoves.push([row, column-1])
+                allowedMoves.push({row: row, column: column-1})
             }
             if (column+1 < 8 && boardState[row][column+1][0] !== boardState[row][column][0]) {
-                allowedMoves.push([row, column+1])
+                allowedMoves.push({row: row, column: column+1})
             }
         }
 
@@ -247,7 +247,7 @@ export const getAllowedMoves = (row: number, column: number, boardState: string[
                     updatedBoard[0][1]="wK"
                     const isSqureThreeFree = !isCheck(true, boardState, castleInformation, previousMove);
                     if(isSqureOneFree && isSqureTwoFree && isSqureThreeFree) {
-                        allowedMoves.push([0, 1])
+                        allowedMoves.push({row: 0, column: 1})
                     }
                 }
                 if(castleInformation.wPr && boardState[0][5] === "" && boardState[0][6] === "" ){
@@ -259,7 +259,7 @@ export const getAllowedMoves = (row: number, column: number, boardState: string[
                     updatedBoard[0][6]="wK"
                     const isSqureTwoFree = !isCheck(true, boardState, castleInformation, previousMove);
                     if(isSqureOneFree && isSqureTwoFree) {
-                        allowedMoves.push([0, 6])
+                        allowedMoves.push({row: 0, column: 6})
                     }
                 }
             }
@@ -276,7 +276,7 @@ export const getAllowedMoves = (row: number, column: number, boardState: string[
                     updatedBoard[7][1]="bK"
                     const isSqureThreeFree = !isCheck(false, boardState, castleInformation, previousMove);
                     if(isSqureOneFree && isSqureTwoFree && isSqureThreeFree) {
-                        allowedMoves.push([7, 1])
+                        allowedMoves.push({row: 7, column: 1})
                     }
                 }
                 if(castleInformation.wPr && boardState[7][5] === "" && boardState[7][6] === "" ){
@@ -288,7 +288,7 @@ export const getAllowedMoves = (row: number, column: number, boardState: string[
                     updatedBoard[7][6]="bK"
                     const isSqureTwoFree = !isCheck(false, boardState, castleInformation, previousMove);
                     if(isSqureOneFree && isSqureTwoFree) {
-                        allowedMoves.push([7, 6])
+                        allowedMoves.push({row: 7, column: 6})
                     }
                 }
             }
@@ -303,12 +303,12 @@ export const isCheck = (whiteMove: boolean, boardState: string[][], castleInform
         for(let columnNumber=0; columnNumber<8; columnNumber++){
             if(whiteMove && boardState[rowNumber][columnNumber][0] === "b"){
                 const possilbeMoves = getAllowedMoves(rowNumber, columnNumber, boardState, castleInformation, true, previousMove)
-                const isKingAttackMove = possilbeMoves.some(move => boardState[move[0]][move[1]] === "wK")
+                const isKingAttackMove = possilbeMoves.some(tile => boardState[tile.row][tile.column] === "wK")
                 if(isKingAttackMove) {return true;}
             }
             else if(!whiteMove && boardState[rowNumber][columnNumber][0] === "w"){
                 const possilbeMoves = getAllowedMoves(rowNumber, columnNumber, boardState, castleInformation, true, previousMove)
-                const isKingAttackMove = possilbeMoves.some(move => boardState[move[0]][move[1]] === "bK")
+                const isKingAttackMove = possilbeMoves.some(tile => boardState[tile.row][tile.column] === "bK")
                 if(isKingAttackMove) {return true;}
             }
         }
@@ -324,7 +324,7 @@ export const isStaleMate = (whiteMove: boolean, boardState: string[][], castleIn
                 for(const move of allowedMoves) {
                     const updatedBoard = JSON.parse(JSON.stringify(boardState));
                     updatedBoard[rowNumber][columnNumber] = ""
-                    updatedBoard[move[0]][move[1]] = boardState[rowNumber][columnNumber]
+                    updatedBoard[move.row][move.column] = boardState[rowNumber][columnNumber]
                     if(!isCheck(!whiteMove, updatedBoard, castleInformation, previousMove)) {
                         return false;
                     }
@@ -335,7 +335,7 @@ export const isStaleMate = (whiteMove: boolean, boardState: string[][], castleIn
                 for(const move of allowedMoves) {
                     const updatedBoard = JSON.parse(JSON.stringify(boardState));
                     updatedBoard[rowNumber][columnNumber] = ""
-                    updatedBoard[move[0]][move[1]] = boardState[rowNumber][columnNumber]
+                    updatedBoard[move.row][move.column] = boardState[rowNumber][columnNumber]
                     if(!isCheck(!whiteMove, updatedBoard, castleInformation, previousMove)) {
                         return false;
                     }
@@ -348,4 +348,22 @@ export const isStaleMate = (whiteMove: boolean, boardState: string[][], castleIn
 
 export const isCheckMate = (whiteMove: boolean, boardState: string[][], castleInformation: CastleInformation, previousMove: Move): boolean => {
     return isCheck(whiteMove,boardState, castleInformation, previousMove) && isStaleMate(!whiteMove, boardState, castleInformation, previousMove)
+}
+
+
+export const getPieceValue = (piece: string): number => {
+    switch(piece[1]){
+        case "P":
+            return 1
+        case "B":
+            return 3
+        case "K":
+            return 3
+        case "R":
+            return 5
+        case "Q":
+            return 9
+        default: 
+            return 0
+    }
 }

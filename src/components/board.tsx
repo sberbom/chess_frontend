@@ -1,18 +1,18 @@
-import { Colors, defualtCastleInformation, defualtMove, piecePossibleToMove} from "../types"
+import { Colors, defualtCastleInformation, noPreviousMove } from "../types"
 import Tile from "./tile"
 import "../styles/board.css"
 import { useEffect, useState } from "react"
-import { getAllowedMoves, isCheck, isCheckMate, isStaleMate } from "../utlis/chess_utils"
+import { getAllowedMoves, getPieceValue, isCheck, isCheckMate, isStaleMate } from "../utlis/chess_utils"
 import PieceSelector from "./piece_selector"
 import Captures from "./captures"
-import { getRandomInt } from "../utlis/utils"
+import { getAvoidCheckRandomComputerMove, getRandomComputerMove } from "../bots/random"
+import * as constants from "../constants"
+import { getAvoidCheckGreedyComputerMove, getGreedyComputerMove } from "../bots/greedy"
+import { sleep } from "../utlis/utils"
 
-
-//v3
-//Checkmate bug
-//Fix stalemate bug
 
 //v4
+//Castle bug - computer somethimes castles when in check
 //Bot v2 greedy
 //Score
 
@@ -40,26 +40,34 @@ const Board = () => {
     const [isPawnPromotion, setIsPawnPromotion] = useState(false);
     const [pawnToPromote, setPwanToPromote] = useState(-1)
     const [castleInformation, setCastleInformation] = useState(defualtCastleInformation)
-    const [previousMove, setPreviousMove] = useState(defualtMove)
+    const [previousMove, setPreviousMove] = useState(noPreviousMove)
     const [blackCaptures, setBlackCaptures] = useState<string[]>([])
     const [whiteCaptures, setWhiteCaptures] = useState<string[]>([])
     const [infoText, setInfoText] = useState("")
-    const [isTwoPlayer, setIsTwoPlayer] = useState(false)
+    const [gameMode, setGameMode] = useState(constants.Greedy)
     const [isEndGame, setIsEndGame] = useState(false)
+    const [whitePoints, setWhitePoitns] = useState(0)
+    const [blackPoints, setBlackPoints] = useState(0)
 
     const getSelectedTiles = () => {
         let selectedTiles = []
         if(selectedRow !== -1 && selectedColumn !== -1) {
             selectedTiles.push(8*selectedRow+selectedColumn)
             getAllowedMoves(selectedRow, selectedColumn, boardState, castleInformation, false, previousMove).forEach(move => {
-                selectedTiles.push(8*move[0]+move[1])
-            });
+                selectedTiles.push(8*move.row+move.column)
+            })
         }
         return selectedTiles
     }
 
     let nextColorWhite = true
     let tiles = boardState.flat().map((piece, index) => {
+        if(index === previousMove.fromTile.row*8 + previousMove.fromTile.column || index === (previousMove.toTile.row*8) + previousMove.toTile.column){
+            if((index+1)%8 !== 0){
+                nextColorWhite = !nextColorWhite
+            }
+            return(<Tile color={Colors.red} piece={piece} movePiece={() => movePiece(index)} selected={getSelectedTiles().includes(index)} key={index}/>)
+        }
         if(nextColorWhite) {
             if((index+1)%8 !== 0){
                 nextColorWhite = !nextColorWhite
@@ -91,13 +99,13 @@ const Board = () => {
                     setSelectedColumn(index%8)
                     getAllowedMoves(rowNumber, columnNumber, boardState, castleInformation, false, previousMove)
                 }
-                else if((rowNumber !== -1 && columnNumber !== -1 && getAllowedMoves(rowNumber, columnNumber, boardState, castleInformation, false, previousMove).some( r => r[0] === Math.floor(index/8) && r[1] === index%8) && 
+                else if((rowNumber !== -1 && columnNumber !== -1 && getAllowedMoves(rowNumber, columnNumber, boardState, castleInformation, false, previousMove).some( r => r.row === Math.floor(index/8) && r.column === index%8) && 
                     !isPawnPromotion) || (isComputerMove && !isPawnPromotion)) {
                     let updatedBoard = JSON.parse(JSON.stringify(boardState));
                     updatedBoard[Math.floor(index/8)][index%8] = boardState[rowNumber][columnNumber]
                     updatedBoard[rowNumber][columnNumber]=""
                     if(isCheck(!whiteMove, updatedBoard, castleInformation, previousMove)) {
-                        if(isTwoPlayer || whiteMove) {
+                        if(gameMode ===  constants.TwoPlayer || whiteMove) {
                             console.info("Move not allowed, check");
                             setInfoText("Move not allowed, check")
                         }
@@ -112,7 +120,7 @@ const Board = () => {
                             setInfoText("CheckMate")
                             // setIsCheckMate(true)
                         }
-                        if(isTwoPlayer || whiteMove) {
+                        if(gameMode === constants.TwoPlayer || whiteMove) {
                             console.info("Move not allowed, check");
                             setInfoText("Move not allowed, check")
                         }
@@ -128,7 +136,7 @@ const Board = () => {
                             setPwanToPromote(index)
                         }
                         else if(updatedBoard[Math.floor(index/8)][index%8] === "bP" && Math.floor(index/8) === 0) {
-                            if(isTwoPlayer){
+                            if(gameMode === constants.TwoPlayer){
                                 setIsPawnPromotion(true)
                                 setPwanToPromote(index)
                             }
@@ -175,14 +183,16 @@ const Board = () => {
                         //Add to capture 
                         if(boardState[Math.floor(index/8)][index%8][0] === "b") {
                             setWhiteCaptures([...whiteCaptures, boardState[Math.floor(index/8)][index%8]])
+                            setWhitePoitns(whitePoints + getPieceValue(boardState[Math.floor(index/8)][index%8]))
                         }
                         else if(boardState[Math.floor(index/8)][index%8][0] === "w") {
                             setBlackCaptures([...blackCaptures, boardState[Math.floor(index/8)][index%8]])
+                            setBlackPoints(blackPoints + getPieceValue(boardState[Math.floor(index/8)][index%8]))
                         }
                         setBoardState(updatedBoard)
                         updateCastleInformation(index)
                         setWhiteMove(!whiteMove)
-                        setPreviousMove({piece: boardState[rowNumber][columnNumber], from: rowNumber*8+columnNumber, to: index})
+                        setPreviousMove({piece: boardState[rowNumber][columnNumber], fromTile: {row: rowNumber, column: columnNumber}, toTile: {row: Math.floor(index/8), column: index%8}})
                         setInfoText("")
                     }
                     setSelectedRow(-1)
@@ -196,7 +206,7 @@ const Board = () => {
         }
         catch(error) {
             console.error(error)
-            if(!whiteMove && !isTwoPlayer) {
+            if(!whiteMove && gameMode !== constants.TwoPlayer) {
                 avoidCheckComputerMove()
             }
         }
@@ -232,57 +242,30 @@ const Board = () => {
         setPwanToPromote(-1)
     }
 
-    
-    const getPossilbeComputerMoves = (): piecePossibleToMove[] => {
-        let piecesPossilbeToMove: piecePossibleToMove[] = []
-            for(let rowNumber = 0; rowNumber < 8; rowNumber++) {
-                for(let columnNumber = 0; columnNumber < 8; columnNumber++) {
-                    if(boardState[rowNumber][columnNumber][0] === "b") {
-                        const possibleMoves = getAllowedMoves(rowNumber, columnNumber, boardState, castleInformation, true, previousMove)
-                        if(possibleMoves.length > 0) {
-                            const possibleMove: piecePossibleToMove = {
-                                rowNumber: rowNumber,
-                                columnNumber: columnNumber,
-                                moves: getAllowedMoves(rowNumber, columnNumber, boardState, castleInformation, true, previousMove)
-                            }
-                            piecesPossilbeToMove.push(possibleMove)   
-                        }                 
-                    }
-                }
-            }
-        return piecesPossilbeToMove
-    }
-
-    const doRandomComputerMove = () => {
-        let piecesPossilbeToMove = getPossilbeComputerMoves()
-        const piece = piecesPossilbeToMove[getRandomInt(0, piecesPossilbeToMove.length-1)]
-        const move = piece.moves[getRandomInt(0, piece.moves.length-1)]
-        movePiece(move[0]*8+move[1], true, piece.rowNumber, piece.columnNumber)
+    const doComputerMove = async () => {
+        let computerMove = getRandomComputerMove(boardState, castleInformation, previousMove)
+        switch(gameMode){
+            case constants.Greedy:
+                computerMove = getGreedyComputerMove(boardState, castleInformation, previousMove)
+                break
+            default:
+                break
+        }
+        movePiece(computerMove.toTile.row*8+computerMove.toTile.column, true, computerMove.fromTile.row, computerMove.fromTile.column)
     }
     
     const avoidCheckComputerMove = () => {
-        try{
-            let piecesPossilbeToMove = getPossilbeComputerMoves()
-            let boardCopy = JSON.parse(JSON.stringify(boardState));
-            for(let piecePossibleToMove of piecesPossilbeToMove) {
-                for(let move of piecePossibleToMove.moves) {
-                    boardCopy[move[0]][move[1]] = boardCopy[piecePossibleToMove.rowNumber][piecePossibleToMove.columnNumber]
-                    boardCopy[piecePossibleToMove.rowNumber][piecePossibleToMove.columnNumber] = ""
-                    if(!isCheck(false, boardCopy, castleInformation, previousMove)) {
-                        movePiece(move[0]*8+move[1], true, piecePossibleToMove.rowNumber, piecePossibleToMove.columnNumber)
-                        return
-                    }
-                }
-            }
+        let computerMove = getAvoidCheckRandomComputerMove(boardState, castleInformation, previousMove)
+        switch(gameMode){
+            case constants.Greedy:
+                computerMove = getAvoidCheckGreedyComputerMove(boardState, castleInformation, previousMove)
+                break
+            default:
+                break
         }
-        catch(error) {
-            console.log(error)
+        if(computerMove != null){
+            movePiece(computerMove.toTile.row*8+computerMove.toTile.column, true, computerMove.fromTile.row, computerMove.fromTile.column)
         }
-        finally {
-            setInfoText("Check mate player won!")
-            console.info("Check mate player won!")
-        }
-        
     }
 
     useEffect(() => { 
@@ -296,10 +279,10 @@ const Board = () => {
                 setIsEndGame(true)
                 console.info("Stalemate, remis")
             }
-            if(!whiteMove && !isPawnPromotion && !isTwoPlayer) {
-                doRandomComputerMove()
+            if(!whiteMove && !isPawnPromotion && gameMode !== constants.TwoPlayer) {
+                doComputerMove()
             }
-        }, [whiteMove, boardState, castleInformation, previousMove, isPawnPromotion, isTwoPlayer])
+        }, [whiteMove, boardState, castleInformation, previousMove, isPawnPromotion, gameMode === constants.TwoPlayer])
 
     return(
         <div className="boardContainer">
@@ -308,13 +291,16 @@ const Board = () => {
             </div>
             <div className="info-display">
                 <h1>Chess</h1>
-                <h3>Game Mode: {isTwoPlayer ? "Two player" : "Machine"} </h3>
-                <button onClick={() => setIsTwoPlayer(true)}>TwoPlayer</button>
-                <button onClick={() => setIsTwoPlayer(false)}>Machine</button>
+                <h3>Game Mode: {gameMode} </h3>
+                <button onClick={() => setGameMode(constants.TwoPlayer)}>TwoPlayer</button>
+                <button onClick={() => setGameMode(constants.Random)}>Machine Random</button>
+                <button onClick={() => setGameMode(constants.Greedy)}>Machine Greedy</button>
                 <h2>{whiteMove ? "White" : "Black"} to move</h2>
                 <h3>White captures:</h3>
+                <p>{whitePoints} points</p>
                 <Captures pieces={whiteCaptures} />
                 <h3>Black captures:</h3>
+                <p>{blackPoints} points</p>
                 <Captures pieces={blackCaptures} />
                 {isPawnPromotion && <PieceSelector white={!whiteMove} getPiece={promotePawn}/>}
                 {infoText !== "" && <p className="warning-text">{infoText}</p>}
