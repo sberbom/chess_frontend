@@ -1,4 +1,4 @@
-import { Colors, defualtCastleInformation, noPreviousMove } from "../types"
+import { Colors, defualtCastleInformation, Move, noPreviousMove } from "../types"
 import Tile from "./tile"
 import "../styles/board.css"
 import { useEffect, useState } from "react"
@@ -9,6 +9,7 @@ import { getAvoidCheckRandomComputerMove, getRandomComputerMove } from "../bots/
 import * as constants from "../constants"
 import { getAvoidCheckGreedyComputerMove, getGreedyComputerMove } from "../bots/greedy"
 import { getAvoidCheckRulyComputerMove, getRulyComputerMove } from "../bots/rules"
+import { moveToMoveNotation } from "../utlis/utils"
 
 
 //v4
@@ -48,6 +49,7 @@ const Board = () => {
     const [isEndGame, setIsEndGame] = useState(false)
     const [whitePoints, setWhitePoitns] = useState(0)
     const [blackPoints, setBlackPoints] = useState(0)
+    const [moves, setMoves] = useState<Move[]>([])
 
     const getSelectedTiles = () => {
         let selectedTiles = []
@@ -187,6 +189,7 @@ const Board = () => {
                         updateCastleInformation(index)
                         setWhiteMove(!whiteMove)
                         setPreviousMove({piece: boardState[rowNumber][columnNumber], fromTile: {row: rowNumber, column: columnNumber}, toTile: {row: Math.floor(index/8), column: index%8}})
+                        setMoves([...moves, {piece: boardState[rowNumber][columnNumber], fromTile: {row: rowNumber, column: columnNumber}, toTile: {row: Math.floor(index/8), column: index%8}}])
                         setInfoText("")
                     }
                     setSelectedRow(-1)
@@ -268,6 +271,12 @@ const Board = () => {
         }
     }
 
+    const getMovesString = (): String => {
+        let movesString = ""
+        moves.forEach(move => {movesString = movesString + moveToMoveNotation(move) + ", "}) 
+        return movesString
+    }
+
     useEffect(() => { 
             if(isCheckMate(whiteMove, boardState, castleInformation, previousMove)){
                 setInfoText(`Check mate ${whiteMove ? "black" : "white"} player won!`)
@@ -306,6 +315,8 @@ const Board = () => {
                 <h3>Black captures:</h3>
                 <p>{blackPoints} points</p>
                 <Captures pieces={blackCaptures} />
+                <h3>Moves:</h3>
+                <p data-testid="movesList">{getMovesString()}</p>
                 {isPawnPromotion && <PieceSelector white={!whiteMove} getPiece={promotePawn}/>}
                 {infoText !== "" && <p className="warning-text">{infoText}</p>}
             </div>

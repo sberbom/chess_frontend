@@ -205,3 +205,45 @@ test("Stalemate", () => {
 
     expect(screen.getByText("Stalemate, remis")).toHaveTextContent("Stalemate, remis")
 })
+
+test("Moves notation", () => {
+    render(<Board />)
+    
+    fireEvent.change(screen.getByTestId("GameMode"), {target: {value: constants.TwoPlayer}})
+
+    //Move white pawn
+    fireEvent.click(screen.getAllByTestId("tile")[12])
+    fireEvent.click(screen.getAllByTestId("tile")[20])
+
+    expect(screen.getByTestId("movesList")).toHaveTextContent("e3,")
+
+    //Black pawn
+    fireEvent.click(screen.getAllByTestId("tile")[48])
+    fireEvent.click(screen.getAllByTestId("tile")[40])
+
+    expect(screen.getByTestId("movesList")).toHaveTextContent("e3, a6")
+
+    //White queen
+    fireEvent.click(screen.getAllByTestId("tile")[3])
+    fireEvent.click(screen.getAllByTestId("tile")[39])
+
+    //Black pawn
+    fireEvent.click(screen.getAllByTestId("tile")[40])
+    fireEvent.click(screen.getAllByTestId("tile")[32])
+
+    //White bishop
+    fireEvent.click(screen.getAllByTestId("tile")[5])
+    fireEvent.click(screen.getAllByTestId("tile")[26])
+
+    //Black pawn
+    fireEvent.click(screen.getAllByTestId("tile")[32])
+    fireEvent.click(screen.getAllByTestId("tile")[24])
+    
+    //White Queen
+    fireEvent.click(screen.getAllByTestId("tile")[39])
+    fireEvent.click(screen.getAllByTestId("tile")[53])
+
+    
+    expect(screen.getByTestId("movesList")).toHaveTextContent("e3, a6, Qh5, a5, Bc4, a4, Qf7,")
+    expect(screen.getByText("Check mate white player won!")).toHaveTextContent("Check mate white player won!")
+})
