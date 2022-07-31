@@ -1,5 +1,6 @@
 import {fireEvent, render, screen} from "@testing-library/react"
 import Board from "../components/board"
+import * as constants from "../constants"
 
 test("Board render", () => {
     render(<Board />)
@@ -11,17 +12,18 @@ test("Board render", () => {
 test("Game modes", () => {
     render(<Board />)
     
-    fireEvent.click(screen.getByText("TwoPlayer"))
-    expect(screen.getByText("Game Mode: Two Player")).toHaveTextContent("Game Mode: Two Player")
+    fireEvent.change(screen.getByTestId("GameMode"), {target: {value: constants.TwoPlayer}})
+    expect(screen.getAllByRole("heading")[1]).toHaveTextContent("Game Mode: Two Player")
+    
 
-    fireEvent.click(screen.getByText("Machine Random"))
+    fireEvent.change(screen.getByTestId("GameMode"), {target: {value: constants.Random}})
     expect(screen.getByText("Game Mode: Machine Random")).toHaveTextContent("Game Mode: Machine Random")
 })
 
 test("Checkmate", () => {
     render(<Board />)
     
-    fireEvent.click(screen.getByText("TwoPlayer"))
+    fireEvent.change(screen.getByTestId("GameMode"), {target: {value: constants.TwoPlayer}})
 
     //Move white pawn
     fireEvent.click(screen.getAllByTestId("tile")[12])
@@ -58,7 +60,7 @@ test("Checkmate", () => {
 test("Check", () => {
     render(<Board />)
 
-    fireEvent.click(screen.getByText("TwoPlayer"))
+    fireEvent.change(screen.getByTestId("GameMode"), {target: {value: constants.TwoPlayer}})
 
     //Move white pawn
     fireEvent.click(screen.getAllByTestId("tile")[12])
@@ -85,13 +87,37 @@ test("Check", () => {
     fireEvent.click(screen.getAllByTestId("tile")[24])
 
 
-    expect(screen.getByText("Move not allowed, check")).toHaveTextContent("Move not allowed, check")
+    expect(screen.getByText("Move not allowed, you can not put your own piece in check")).toHaveTextContent("Move not allowed, you can not put your own piece in check")
+})
+
+test("Chekc nr.2", () => {
+    render(<Board />)
+
+    fireEvent.change(screen.getByTestId("GameMode"), {target: {value: constants.TwoPlayer}})
+
+    //"White pawn"
+    fireEvent.click(screen.getAllByTestId("tile")[12])
+    fireEvent.click(screen.getAllByTestId("tile")[20])
+
+    //"Black pawn"
+    fireEvent.click(screen.getAllByTestId("tile")[52])
+    fireEvent.click(screen.getAllByTestId("tile")[36])
+
+    //"White bishop"
+    fireEvent.click(screen.getAllByTestId("tile")[5])
+    fireEvent.click(screen.getAllByTestId("tile")[33])
+
+    //Black pawn
+    fireEvent.click(screen.getAllByTestId("tile")[51])
+    fireEvent.click(screen.getAllByTestId("tile")[35])
+
+    expect(screen.getByText("Move not allowed, you can not put your own piece in check")).toHaveTextContent("Move not allowed, you can not put your own piece in check")
 })
 
 test("Stalemate", () => {
     render(<Board />)
 
-    fireEvent.click(screen.getByText("TwoPlayer"))
+    fireEvent.change(screen.getByTestId("GameMode"), {target: {value: constants.TwoPlayer}})
 
     //Move white pawn
     fireEvent.click(screen.getAllByTestId("tile")[12])

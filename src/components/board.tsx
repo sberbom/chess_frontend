@@ -8,7 +8,7 @@ import Captures from "./captures"
 import { getAvoidCheckRandomComputerMove, getRandomComputerMove } from "../bots/random"
 import * as constants from "../constants"
 import { getAvoidCheckGreedyComputerMove, getGreedyComputerMove } from "../bots/greedy"
-import { sleep } from "../utlis/utils"
+import { getAvoidCheckRulyComputerMove, getRulyComputerMove } from "../bots/rules"
 
 
 //v4
@@ -44,7 +44,7 @@ const Board = () => {
     const [blackCaptures, setBlackCaptures] = useState<string[]>([])
     const [whiteCaptures, setWhiteCaptures] = useState<string[]>([])
     const [infoText, setInfoText] = useState("")
-    const [gameMode, setGameMode] = useState(constants.Greedy)
+    const [gameMode, setGameMode] = useState(constants.Rules)
     const [isEndGame, setIsEndGame] = useState(false)
     const [whitePoints, setWhitePoitns] = useState(0)
     const [blackPoints, setBlackPoints] = useState(0)
@@ -66,19 +66,19 @@ const Board = () => {
             if((index+1)%8 !== 0){
                 nextColorWhite = !nextColorWhite
             }
-            return(<Tile color={Colors.red} piece={piece} movePiece={() => movePiece(index)} selected={getSelectedTiles().includes(index)} key={index}/>)
+            return(<Tile color={Colors.red} piece={piece} movePiece={() => movePiece(index)} selected={getSelectedTiles().includes(index)} key={index} index={index}/>)
         }
         if(nextColorWhite) {
             if((index+1)%8 !== 0){
                 nextColorWhite = !nextColorWhite
             }
-            return(<Tile color={Colors.white} piece={piece} movePiece={() => movePiece(index)} selected={getSelectedTiles().includes(index)} key={index}/>)
+            return(<Tile color={Colors.white} piece={piece} movePiece={() => movePiece(index)} selected={getSelectedTiles().includes(index)} key={index} index={index}/>)
         }
         else{
             if((index+1)%8 !== 0){
                 nextColorWhite = !nextColorWhite
             }
-            return(<Tile color={Colors.black} piece={piece} movePiece={() => movePiece(index)} selected={getSelectedTiles().includes(index)} key={index}/>)
+            return(<Tile color={Colors.black} piece={piece} movePiece={() => movePiece(index)} selected={getSelectedTiles().includes(index)} key={index} index={index}/>)
         }
     })
 
@@ -87,48 +87,42 @@ const Board = () => {
             if(!isEndGame){
                 let rowNumber = selectedRow;
                 let columnNumber = selectedColumn;
+
+                //Slected piece from computer
                 if(typeof selectedRowNumber !== "undefined" && typeof selectedColumnNumber !== "undefined") {
                     rowNumber = selectedRowNumber;
                     columnNumber = selectedColumnNumber;
                 }
 
+                //Select piece player
                 if((rowNumber === -1 || columnNumber === -1) && boardState[Math.floor(index/8)][index%8] !== "" && 
-                    ((whiteMove && boardState[Math.floor(index/8)][index%8][0] === "w") || (!whiteMove && boardState[Math.floor(index/8)][index%8][0] === "b")) &&
+                    ((whiteMove && boardState[Math.floor(index/8)][index%8][0] === "w") || 
+                    (!whiteMove && boardState[Math.floor(index/8)][index%8][0] === "b")) &&
                     !isPawnPromotion) {
+
                     setSelectedRow(Math.floor(index/8))
                     setSelectedColumn(index%8)
                     getAllowedMoves(rowNumber, columnNumber, boardState, castleInformation, false, previousMove)
                 }
-                else if((rowNumber !== -1 && columnNumber !== -1 && getAllowedMoves(rowNumber, columnNumber, boardState, castleInformation, false, previousMove).some( r => r.row === Math.floor(index/8) && r.column === index%8) && 
-                    !isPawnPromotion) || (isComputerMove && !isPawnPromotion)) {
+                //MovePice
+                else if((rowNumber !== -1 && columnNumber !== -1 && 
+                    getAllowedMoves(rowNumber, columnNumber, boardState, castleInformation, false, previousMove).some( r => r.row === Math.floor(index/8) && r.column === index%8) && !isPawnPromotion) 
+                    || (isComputerMove && !isPawnPromotion)) {
+
                     let updatedBoard = JSON.parse(JSON.stringify(boardState));
                     updatedBoard[Math.floor(index/8)][index%8] = boardState[rowNumber][columnNumber]
                     updatedBoard[rowNumber][columnNumber]=""
-                    if(isCheck(!whiteMove, updatedBoard, castleInformation, previousMove)) {
+
+                    //Move gets you in check -> not allowed
+                    if(isCheck(whiteMove, updatedBoard, castleInformation, previousMove)) {
                         if(gameMode ===  constants.TwoPlayer || whiteMove) {
-                            console.info("Move not allowed, check");
-                            setInfoText("Move not allowed, check")
+                            console.info("Move not allowed, you can not put your own piece in check");
+                            setInfoText("Move not allowed, you can not put your own piece in check")
                         }
                         else{
-                            //Avoid check computer
                             avoidCheckComputerMove()
                         }
                     }
-                    if(isCheck(whiteMove, boardState, castleInformation, previousMove) && isCheck(whiteMove, updatedBoard, castleInformation, previousMove)) {
-                        if(isStaleMate(whiteMove, updatedBoard, castleInformation, previousMove)) {
-                            console.info("CheckMate")
-                            setInfoText("CheckMate")
-                            // setIsCheckMate(true)
-                        }
-                        if(gameMode === constants.TwoPlayer || whiteMove) {
-                            console.info("Move not allowed, check");
-                            setInfoText("Move not allowed, check")
-                        }
-                        else{
-                            //Avoid check computer
-                            avoidCheckComputerMove()
-                        }
-                    } 
                     else{
                         //Pawn promotion
                         if(updatedBoard[Math.floor(index/8)][index%8] === "wP" && Math.floor(index/8) === 7) {
@@ -246,7 +240,10 @@ const Board = () => {
         let computerMove = getRandomComputerMove(boardState, castleInformation, previousMove)
         switch(gameMode){
             case constants.Greedy:
-                computerMove = getGreedyComputerMove(boardState, castleInformation, previousMove)
+                computerMove = getGreedyComputerMove(false, boardState, castleInformation, previousMove)
+                break
+            case constants.Rules:
+                computerMove = getRulyComputerMove(boardState, castleInformation, previousMove)
                 break
             default:
                 break
@@ -259,6 +256,9 @@ const Board = () => {
         switch(gameMode){
             case constants.Greedy:
                 computerMove = getAvoidCheckGreedyComputerMove(boardState, castleInformation, previousMove)
+                break
+            case constants.Rules:
+                computerMove = getAvoidCheckRulyComputerMove(boardState, castleInformation, previousMove)
                 break
             default:
                 break
@@ -292,9 +292,13 @@ const Board = () => {
             <div className="info-display">
                 <h1>Chess</h1>
                 <h3>Game Mode: {gameMode} </h3>
-                <button onClick={() => setGameMode(constants.TwoPlayer)}>TwoPlayer</button>
-                <button onClick={() => setGameMode(constants.Random)}>Machine Random</button>
-                <button onClick={() => setGameMode(constants.Greedy)}>Machine Greedy</button>
+                <label htmlFor="GameMode">Select Game Mode:</label>
+                <select name="GameMode" id="GameMode" data-testid="GameMode" onChange={(event) => setGameMode(event.target.value)} value={gameMode}>
+                    <option value={constants.TwoPlayer}>Two Player</option>
+                    <option value={constants.Random}>Randy (Level 1)</option>
+                    <option value={constants.Greedy}>Greedy (Level 2)</option>
+                    <option value={constants.Rules}>Jules (Level 3)</option>
+                </select>
                 <h2>{whiteMove ? "White" : "Black"} to move</h2>
                 <h3>White captures:</h3>
                 <p>{whitePoints} points</p>

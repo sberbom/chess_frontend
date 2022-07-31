@@ -8,9 +8,10 @@ interface IProps {
     piece: String,
     selected: Boolean,
     movePiece: () => void;
+    index?: number
 }
 
-const Tile = ({color, piece, selected, movePiece}: IProps ): JSX.Element => {
+const Tile = ({color, piece, selected, movePiece, index}: IProps ): JSX.Element => {
 
     var tileClass = classNames("tile", `${color}-tile`);
     var selectedClass = classNames({"selected": selected})
