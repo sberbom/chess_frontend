@@ -82,12 +82,10 @@ label {
         margin-left: 1vh;
     }
 
-}
-
-@media only screen and (max-width: 800px) {
     .boardContainer {
-        margin: 3vw;
+        padding: 10px;
     }
+
 
 }
 
