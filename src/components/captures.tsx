@@ -7,7 +7,6 @@ interface IProps {
 }
 
 const Captures = ({ pieces }: IProps) => {
-  console.log(pieces);
   const countedPieces: { [piece: string]: number } = pieces
     .sort((a, b) => getPieceValue(b) - getPieceValue(a))
     .reduce(
