@@ -15,7 +15,6 @@ const Captures = ({ pieces }: IProps) => {
       ),
       {}
     );
-  console.log(countedPieces);
   let piecesToRender = Object.entries(countedPieces).map(([piece, count]) => (
     <div className="captured-piece-container" key={piece}>
       <Piece piece={piece} />

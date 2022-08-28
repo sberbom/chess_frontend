@@ -1,8 +1,9 @@
 .board {
-    width: 818px;
+    width: 800px;
     display: grid;
     grid-template-columns: 100px 100px 100px 100px 100px 100px 100px 100px;
     max-height: 800px;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
 }
 
 .boardContainer {
