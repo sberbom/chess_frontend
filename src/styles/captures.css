@@ -1,8 +1,23 @@
 .captured-piece-container {
-    width: calc(100vw/8);
-    height: calc(100vw/8);
-    max-height: 100px;
-    max-width: 100px;
+    width: 70px;
+    height: 70px;
+    position: relative;
+}
+
+.captured-piece-container p {
+    position: absolute;
+    bottom: 15px;
+    right: 0px;
+    z-index: 1;
+    margin: 0;
+}
+
+.captured-piece-container img {
+    width: 55px;
+    height: 55px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
 }
 
 .captures-container {

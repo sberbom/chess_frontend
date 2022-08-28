@@ -6,11 +6,11 @@
 }
 
 .white-tile {
-    background-color: darkgray;
+    background-color: #eadbba;
 }
 
 .black-tile {
-    background-color: green;
+    background-color: #c1a580;
 }
 
 .red-tile {
