@@ -6,7 +6,8 @@
 
 .boardContainer {
     display: flex;
-    margin: 100px;
+    padding: 100px;
+    background-color: #f4f4f4;
 }
 
 .info-display {
